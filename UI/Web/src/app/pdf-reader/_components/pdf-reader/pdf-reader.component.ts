@@ -1,6 +1,7 @@
+import { HttpResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgxExtendedPdfViewerService, PageViewModeType, ProgressBarEvent } from 'ngx-extended-pdf-viewer';
+import { NgxExtendedPdfViewerService, PageViewModeType, ProgressBarEvent, pdfDefaultOptions } from 'ngx-extended-pdf-viewer';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, take } from 'rxjs';
 import { BookService } from 'src/app/book-reader/_services/book.service';
@@ -27,6 +28,8 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   chapterId!: number;
   chapter!: Chapter;
   user!: User;
+
+  useViewer: boolean = false;
 
   /**
    * Reading List id. Defaults to -1.
@@ -80,11 +83,14 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
   constructor(private route: ActivatedRoute, private router: Router, public accountService: AccountService,
     private seriesService: SeriesService, public readerService: ReaderService,
     private navService: NavService, private toastr: ToastrService,
-    private bookService: BookService, private themeService: ThemeService, 
+    private bookService: BookService, private themeService: ThemeService,
     private readonly cdRef: ChangeDetectorRef, private pdfViewerService: NgxExtendedPdfViewerService) {
       this.navService.hideNavBar();
       this.themeService.clearThemes();
       this.navService.hideSideNav();
+      pdfDefaultOptions.disableStream = true;
+      pdfDefaultOptions.disableAutoFetch = true;
+      pdfDefaultOptions.disableRange = true;
   }
 
   @HostListener('window:keyup', ['$event'])
@@ -92,6 +98,9 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
     if (event.key === KEY_CODES.ESC_KEY) {
       this.closeReader();
     }
+  }
+
+  onPageRendered() {
   }
 
   ngOnDestroy(): void {
@@ -159,7 +168,6 @@ export class PdfReaderComponent implements OnInit, OnDestroy {
       }
       this.cdRef.markForCheck();
     });
-
   }
 
   /**

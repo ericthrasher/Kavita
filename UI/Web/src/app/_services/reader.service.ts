@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse as AngularHttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
@@ -16,6 +16,8 @@ import { FilterUtilitiesService } from '../shared/_services/filter-utilities.ser
 import { FileDimension } from '../manga-reader/_models/file-dimension';
 import screenfull from 'screenfull';
 import { TextResonse } from '../_types/text-response';
+import { HttpResponse } from '@microsoft/signalr/dist/esm/HttpClient';
+import { Observable } from 'rxjs';
 
 export const CHAPTER_ID_DOESNT_EXIST = -1;
 export const CHAPTER_ID_NOT_FETCHED = -2;
@@ -48,6 +50,11 @@ export class ReaderService {
 
   downloadPdf(chapterId: number) {
     return this.baseUrl + 'reader/pdf?chapterId=' + chapterId;
+  }
+
+  downloadPdfNewTab(chapterId: number): Observable<AngularHttpResponse<Blob>> {
+    let url = this.downloadPdf(chapterId);
+    return this.httpClient.get(url, { responseType: 'blob', observe: 'response' });
   }
 
   bookmark(seriesId: number, volumeId: number, chapterId: number, page: number) {

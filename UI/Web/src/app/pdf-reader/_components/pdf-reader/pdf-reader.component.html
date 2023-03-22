@@ -1,5 +1,4 @@
 <div class="{{theme}}" *ngIf="accountService.currentUser$ | async as user">
-
     <ng-container *ngIf="isLoading">
         <div class="loading mx-auto" style="min-width: 200px; width: 600px;">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -35,6 +34,7 @@
         [backgroundColor]="backgroundColor"
         [customToolbar]="multiToolbar"
 
+        (pageRendered)="onPageRendered()"
         (pageChange)="saveProgress()"
         (pdfLoadingStarts)="updateLoading(true)"
         (pdfLoaded)="updateLoading(false)"

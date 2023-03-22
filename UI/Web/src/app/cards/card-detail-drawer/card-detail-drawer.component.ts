@@ -223,7 +223,10 @@ export class CardDetailDrawerComponent implements OnInit, OnDestroy {
         this.download(chapter);
         break;
       case (Action.Read):
-        this.readChapter(chapter, false);
+        this.readChapter(chapter);
+        break;
+      case (Action.OpenInKavitaReader):
+        this.readChapterInBrowserPdf(chapter);
         break;
       case (Action.SendTo):
       {
@@ -236,6 +239,17 @@ export class CardDetailDrawerComponent implements OnInit, OnDestroy {
     }
   }
 
+  readChapterInBrowserPdf(chapter: Chapter, incognito: boolean = false){
+    if (chapter.pages === 0) {
+      this.toastr.error('There are no pages. Kavita was not able to read this archive.');
+      return;
+    }
+
+    const params = this.readerService.getQueryParamsObject(incognito, false);
+    this.router.navigate(this.readerService.getNavigationArray(this.libraryId, this.seriesId, chapter.id, chapter.files[0].format), {queryParams: params});
+    this.close();
+  }
+  
   readChapter(chapter: Chapter, incognito: boolean = false) {
     if (chapter.pages === 0) {
       this.toastr.error('There are no pages. Kavita was not able to read this archive.');

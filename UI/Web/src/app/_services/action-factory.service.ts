@@ -88,6 +88,7 @@ export enum Action {
    * Import some data into Kavita
    */
   Import = 18,
+  OpenInKavitaReader = 19
 }
 
 export interface ActionItem<T> {
@@ -428,6 +429,13 @@ export class ActionFactoryService {
     ];
 
     this.chapterActions = [
+      {
+        action: Action.OpenInKavitaReader,
+        title: 'Open in Kavita Reader',
+        callback: this.dummyCallback,
+        requiresAdmin: false,
+        children: [],
+      },
       {
         action: Action.IncognitoRead,
         title: 'Read Incognito',

@@ -1,4 +1,5 @@
 import { DOCUMENT } from '@angular/common';
+import { HttpResponse } from '@angular/common/http';
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, Inject, ChangeDetectionStrategy, ChangeDetectorRef, AfterContentChecked } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -453,6 +454,9 @@ export class SeriesDetailComponent implements OnInit, OnDestroy, AfterContentChe
       case(Action.IncognitoRead):
         this.openChapter(chapter, true);
         break;
+      case (Action.OpenInKavitaReader):
+        this.openChapter(chapter, false, true);
+        break;
       case (Action.SendTo):
         {
           const device = (action._extra!.data as Device);
@@ -676,13 +680,35 @@ export class SeriesDetailComponent implements OnInit, OnDestroy, AfterContentChe
     });
   }
 
-  openChapter(chapter: Chapter, incognitoMode = false) {
+  openChapter(chapter: Chapter, incognitoMode = false, openInKavitaReader:boolean = false) {
     if (this.bulkSelectionService.hasSelections()) return;
     if (chapter.pages === 0) {
       this.toastr.error('There are no pages. Kavita was not able to read this archive.');
       return;
     }
+
+    if (chapter.files[0].format == MangaFormat.PDF && !openInKavitaReader){
+      this.openChapterWithBrowserReader(chapter.id);
+    }
+    else{
     this.router.navigate(this.readerService.getNavigationArray(this.libraryId, this.seriesId, chapter.id, chapter.files[0].format), {queryParams: {incognitoMode}});
+    }
+  }
+
+  openChapterWithBrowserReader(chapterId: number) {
+    this.readerService.downloadPdfNewTab(chapterId)
+    .subscribe((response) => {
+      const b = response.body;
+      let blob = new Blob([b ?? ''], { type: 'application/pdf' });
+      let url = URL.createObjectURL(blob);
+      let a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
   }
 
   openVolume(volume: Volume) {
